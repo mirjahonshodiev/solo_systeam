@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SOLO LEVELING: MONARCH SYSTEM</title>
+<style>
+:root{
+  --cyan:#00f0ff;
+  --blue:#0077ff;
+  --red:#ff2a5f;
+  --gold:#ffd700;
+  --dark-bg:#030712;
+  --panel-bg:rgba(5, 13, 30, 0.95);
+  --border-cyan:rgba(0, 240, 255, 0.4);
+  --border-glow:0 0 15px rgba(0, 240, 255, 0.25);
+  --text-main:#e0f2fe;
+  --text-muted:#93c5fd;
+}
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif}
+body{background:radial-gradient(circle at 50% 0%, #0c1c38 0%, #030712 70%);color:var(--text-main);min-height:100vh;overflow-x:hidden}
+
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;padding-bottom:80px}
+
+/* AUTH SCREEN */
+#screen-auth{position:fixed;top:0;left:0;width:100%;height:100%;background:#030712;z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px}
+.auth-box{width:100%;max-width:360px;background:var(--panel-bg);border:1px solid var(--cyan);border-radius:12px;padding:24px;box-shadow:var(--border-glow);text-align:center}
+.auth-input{width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--cyan);color:#fff;padding:12px;border-radius:6px;margin-bottom:12px;font-size:14px;outline:none;text-align:center}
+.btn-auth{width:100%;background:rgba(0,240,255,0.2);border:1px solid var(--cyan);color:var(--cyan);padding:12px;font-weight:bold;border-radius:6px;cursor:pointer;margin-bottom:8px;transition:0.2s}
+.btn-auth:active{background:var(--cyan);color:#030712}
+
+/* HEADER */
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(3,7,18,0.85);border-bottom:1px solid var(--border-cyan);position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.user-head{display:flex;align-items:center;gap:10px}
+.avatar-box{width:40px;height:40px;border-radius:50%;border:2px solid var(--cyan);overflow:hidden;background:#0a192f;position:relative;cursor:pointer}
+.avatar-box img{width:100%;height:100%;object-fit:cover}
+.logo-title{font-size:13px;font-weight:900;letter-spacing:1px;color:var(--cyan)}
+.gold-badge{border:1px solid var(--gold);padding:4px 8px;font-size:11px;font-weight:bold;color:var(--gold);background:rgba(255,215,0,0.1);border-radius:4px;display:flex;align-items:center;gap:4px}
+
+/* NAVIGATION TABS */
+.nav-tabs{display:flex;overflow-x:auto;background:rgba(3,7,18,0.95);padding:8px;gap:6px;border-bottom:1px solid rgba(0,240,255,0.2);scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:rgba(10,25,50,0.6);border:1px solid rgba(0,240,255,0.2);color:var(--text-muted);padding:8px 10px;font-size:9px;letter-spacing:1px;border-radius:4px;cursor:pointer;white-space:nowrap}
+.tab-btn.active{background:rgba(0,240,255,0.15);border-color:var(--cyan);color:var(--cyan);box-shadow:var(--border-glow)}
+
+.screen{display:none;padding:16px;flex:1}
+.screen.active{display:block}
+
+.panel{background:var(--panel-bg);border:1px solid var(--border-cyan);border-radius:8px;padding:14px;margin-bottom:14px;box-shadow:var(--border-glow)}
+.panel-title{font-size:11px;letter-spacing:2px;color:var(--cyan);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+
+.stats-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:8px}
+.stat-card{background:rgba(5,15,35,0.8);border:1px solid rgba(0,240,255,0.2);padding:8px 10px;border-radius:6px;display:flex;justify-content:space-between;align-items:center}
+.stat-card span{font-size:9px;color:var(--text-muted)}
+.stat-card b{font-size:14px;color:#fff}
+.stat-btn{background:rgba(0,240,255,0.1);border:1px solid var(--cyan);color:var(--cyan);width:24px;height:24px;border-radius:4px;font-weight:bold;cursor:pointer;display:grid;place-items:center}
+
+.boss-card{text-align:center;padding:10px 0}
+.boss-avatar{width:90px;height:90px;margin:0 auto 10px;border-radius:50%;border:3px solid var(--red);background:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300') center/cover;box-shadow:0 0 20px rgba(255,42,95,0.5)}
+.btn-action{background:transparent;border:1px solid var(--cyan);color:var(--cyan);padding:6px 12px;font-size:10px;border-radius:4px;cursor:pointer}
+.btn-action.done{background:var(--cyan);color:#030712;font-weight:bold}
+
+.table-list{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+.table-list th{text-align:left;color:var(--text-muted);padding:6px;border-bottom:1px solid rgba(0,240,255,0.2)}
+.table-list td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,0.05);vertical-align:middle}
+.user-cell{display:flex;align-items:center;gap:6px}
+.mini-avatar{width:22px;height:22px;border-radius:50%;object-fit:cover;border:1px solid var(--cyan)}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(3, 15, 35, 0.95);border:1px solid var(--cyan);color:var(--cyan);padding:10px 18px;border-radius:6px;font-size:11px;letter-spacing:1px;box-shadow:0 0 20px rgba(0,240,255,0.4);transition:transform 0.3s ease;z-index:1000;pointer-events:none;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- ЭКРАН РЕГИСТРАЦИИ И АВТОРИЗАЦИИ ПО ТЕЛЕФОНУ -->
+<div id="screen-auth">
+  <div class="auth-box">
+    <div style="font-size:16px;font-weight:900;color:var(--cyan);letter-spacing:2px;margin-bottom:16px">ВХОД В СИСТЕМУ</div>
+    
+    <!-- Шаг 1: Выбор метода -->
+    <div id="authStep1">
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:12px">Выберите способ входа:</div>
+      <button class="btn-auth" onclick="showPhoneInput()">📱 Войти по номеру телефона</button>
+      <button class="btn-auth" onclick="selectCloudAuth('Google')">🌐 Войти через Google</button>
+      <button class="btn-auth" onclick="selectCloudAuth('iCloud')">☁️ Войти через iCloud</button>
+    </div>
+
+    <!-- Шаг 2: Ввод номера телефона -->
+    <div id="authStepPhone" style="display:none">
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px">Введите номер телефона:</div>
+      <input type="tel" id="phoneNumber" class="auth-input" placeholder="+998 (__) ___-__-__">
+      <button class="btn-auth" style="background:var(--cyan);color:#030712" onclick="sendSmsCode()">ОТПРАВИТЬ СМС КОД</button>
+      <button class="btn-auth" style="background:transparent;border-color:var(--text-muted);color:var(--text-muted)" onclick="backToAuthMethods()">Назад</button>
+    </div>
+
+    <!-- Шаг 3: Ввод 6-значного кода -->
+    <div id="authStepCode" style="display:none">
+      <div style="font-size:10px;color:var(--cyan);margin-bottom:6px" id="codeSentInfo">Код отправлен на номер</div>
+      <div style="font-size:9px;color:var(--text-muted);margin-bottom:10px">Для теста используйте код: <b style="color:var(--gold)">123456</b></div>
+      <input type="text" id="smsCodeInput" class="auth-input" maxlength="6" placeholder="_ _ _ _ _ _" style="letter-spacing: 4px; font-weight: bold; font-size: 18px;">
+      <button class="btn-auth" style="background:var(--cyan);color:#030712" onclick="verifySmsCode()">ПОДТВЕРДИТЬ КОД</button>
+    </div>
+
+    <!-- Шаг 4: Заполнение профиля (Имя, Фамилия, Аватар) -->
+    <div id="authStepProfile" style="display:none">
+      <div style="font-size:12px;font-weight:bold;color:var(--cyan);margin-bottom:10px">АНКЕТА ОХОТНИКА</div>
+      <input type="text" id="regName" class="auth-input" placeholder="Имя">
+      <input type="text" id="regSurname" class="auth-input" placeholder="Фамилия">
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px">Загрузите вашу аватарку:</div>
+      <input type="file" id="regAvatarFile" accept="image/*" class="auth-input" style="padding:6px">
+      <button class="btn-auth" style="background:var(--cyan);color:#030712;margin-top:6px" onclick="completeRegistration()">ВОЙТИ В ИГРУ</button>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+  <header>
+    <div class="user-head">
+      <div class="avatar-box" onclick="document.getElementById('changeAvatarInput').click()">
+        <img id="headerAvatar" src="" alt="Avatar">
+        <input type="file" id="changeAvatarInput" accept="image/*" style="display:none" onchange="updateUserAvatar(event)">
+      </div>
+      <div>
+        <div class="logo-title" id="headerName">ОХОТНИК</div>
+        <div style="font-size:9px;color:var(--cyan)" id="headerMonarch">Монарх Теней</div>
+      </div>
+    </div>
+    <div class="gold-badge">🪙 <span id="userGold">0</span> G</div>
+  </header>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('main')">ПРОФИЛЬ</button>
+    <button class="tab-btn" onclick="switchTab('quests')">КВЕСТЫ</button>
+    <button class="tab-btn" onclick="switchTab('boss')">БОСС</button>
+    <button class="tab-btn" onclick="switchTab('pvp')">АРЕНА PvP</button>
+    <button class="tab-btn" onclick="switchTab('skills')">НАВЫКИ</button>
+    <button class="tab-btn" onclick="switchTab('shadows')">ТЕНИ</button>
+    <button class="tab-btn" onclick="switchTab('inventory')">СУНДУКИ</button>
+    <button class="tab-btn" onclick="switchTab('clans')">КЛАНЫ</button>
+    <button class="tab-btn" onclick="switchTab('top')">РЕЙТИНГ</button>
+  </div>
+
+  <div id="screen-main" class="screen active">
+    <div class="panel">
+      <div class="panel-title"><span>ПРОГРЕСС СИСТЕМЫ</span><span id="levelText">LV. 1</span></div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px" id="xpText">0 / 100 XP</div>
+      <div style="height:6px;background:rgba(0,0,0,0.5);border:1px solid rgba(0,240,255,0.3);border-radius:3px;overflow:hidden">
+        <div id="xpBar" style="height:100%;background:linear-gradient(90deg, var(--blue), var(--cyan));width:0%"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span>8 ХАРАКТЕРИСТИК</span><span>ОЧКИ: <b id="statPoints" style="color:var(--cyan)">0</b></span></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div><span>СИЛА</span><br><b id="s_str">10</b></div><button class="stat-btn" onclick="upStat('str')">+</button></div>
+        <div class="stat-card"><div><span>ЛОВКОСТЬ</span><br><b id="s_agi">10</b></div><button class="stat-btn" onclick="upStat('agi')">+</button></div>
+        <div class="stat-card"><div><span>ВЫНОСЛ.</span><br><b id="s_vit">10</b></div><button class="stat-btn" onclick="upStat('vit')">+</button></div>
+        <div class="stat-card"><div><span>ИНТЕЛЛЕКТ</span><br><b id="s_int">10</b></div><button class="stat-btn" onclick="upStat('int')">+</button></div>
+        <div class="stat-card"><div><span>ВОСПРИЯТИЕ</span><br><b id="s_per">10</b></div><button class="stat-btn" onclick="upStat('per')">+</button></div>
+        <div class="stat-card"><div><span>МАНА</span><br><b id="s_mp">100</b></div><button class="stat-btn" onclick="upStat('mp')">+</button></div>
+        <div class="stat-card"><div><span>ЗАЩИТА</span><br><b id="s_def">10</b></div><button class="stat-btn" onclick="upStat('def')">+</button></div>
+        <div class="stat-card"><div><span>УДАЧА</span><br><b id="s_luck">10</b></div><button class="stat-btn" onclick="upStat('luck')">+</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-quests" class="screen">
+    <div class="panel">
+      <div class="panel-title"><span>ЕЖЕДНЕВНЫЕ КВЕСТЫ</span><span id="questTimer">24:00:00</span></div>
+      <div id="questsContainer"></div>
+    </div>
+  </div>
+
+  <div id="screen-boss" class="screen">
+    <div class="panel" style="border-color:var(--red)">
+      <div class="panel-title" style="color:var(--red)"><span>МИРОВОЙ БОСС</span><span>АНТАРЕС</span></div>
+      <div class="boss-card">
+        <div class="boss-avatar"></div>
+        <div style="font-size:16px;font-weight:900;color:var(--red)">КОРОЛЬ ДРАКОНОВ</div>
+        <div style="font-size:10px;color:var(--text-muted);margin:6px 0" id="bossHpText">5000 / 5000 HP</div>
+        <div style="height:10px;background:#000;border:1px solid var(--red);border-radius:5px;overflow:hidden;margin-bottom:12px">
+          <div id="bossHpBar" style="height:100%;background:linear-gradient(90deg,#ff0000,#ff8800);width:100%"></div>
+        </div>
+        <button class="btn-action" style="width:100%;border-color:var(--red);color:var(--red);padding:10px;font-weight:bold" onclick="attackBoss()">⚔️ АТАКОВАТЬ ДРАКОНА</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-pvp" class="screen">
+    <div class="panel">
+      <div class="panel-title"><span>БОИ С ИГРОКАМИ (PvP)</span><span>АРЕНА</span></div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:10px">Сразитесь с другими охотниками из базы данных!</div>
+      <div id="pvpList"></div>
+    </div>
+  </div>
+
+  <div id="screen-skills" class="screen">
+    <div class="panel">
+      <div class="panel-title"><span>НАВЫКИ ОХОТНИКА</span><span>ДРЕВО СИСТЕМЫ</span></div>
+      <div id="skillsList"></div>
+    </div>
+  </div>
+
+  <div id="screen-shadows" class="screen">
+    <div class="panel">
+      <div class="panel-title"><span>АРМИЯ ТЕНЕЙ</span><span>ИЗВЛЕЧЕНИЕ</span></div>
+      <button class="btn-action" style="width:100%;margin-bottom:12px" onclick="extractShadow()">👥 ИЗВЛЕЧЬ ТЕНЬ ИЗ ВРАГА</button>
+      <div id="shadowsList"></div>
+    </div>
+  </div>
+
+  <div id="screen-inventory" class="screen">
+    <div class="panel">
+      <div class="panel-title"><span>ХРАНИЛИЩЕ И СУНДУКИ</span><span>ЛУТ</span></div>
+      <button class="btn-action" style="width:100%;margin-bottom:12px" onclick="openChest()">📦 ОТКРЫТЬ СУНДУК (КЛЮЧ ВОРОТ)</button>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Инвентарь предметов:</div>
+      <div id="inventoryList" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
+    </div>
+  </div>
+
+  <div id="screen-clans" class="screen">
+    <div class="panel">
+      <div class="panel-title"><span>СИСТЕМА КЛАНОВ</span><span>8 МОНАРХОВ</span></div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px">Ваш клан: <b id="myClanName" style="color:var(--cyan)">Не выбран</b></div>
+      <div id="clansSelection"></div>
+    </div>
+  </div>
+
+  <div id="screen-top" class="screen">
+    <div class="panel">
+      <div class="panel-title"><span>МИРОВОЙ РЕЙТИНГ</span><span>БАЗА ДАННЫХ</span></div>
+      <table class="table-list">
+        <thead><tr><th>ОХОТНИК</th><th>РАНГ</th><th>УР.</th><th>ЗОЛОТО</th></tr></thead>
+        <tbody id="leaderboardBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">СИСТЕМНОЕ УВЕДОМЛЕНИЕ</div>
+
+<script>
+let game = {
+  registered: false,
+  phone: "",
+  name: "",
+  surname: "",
+  avatar: "",
+  monarch: "Монарх Теней",
+  clan: "Клан Теней",
+  level: 1,
+  xp: 0,
+  maxXp: 100,
+  gold: 500,
+  points: 0,
+  stats: { str: 10, agi: 10, vit: 10, int: 10, per: 10, mp: 100, def: 10, luck: 10 },
+  quests: [
+    { text: "Отжимания 100 раз", xp: 30, gold: 100, done: false },
+    { text: "Приседания 100 раз", xp: 30, gold: 100, done: false },
+    { text: "Бег 10 километров", xp: 60, gold: 250, done: false },
+    { text: "Чтение манускриптов", xp: 40, gold: 150, done: false }
+  ],
+  skills: [
+    { name: "Жажда Крови", lvl: 0, desc: "Угрожает врагам" },
+    { name: "Извлечение Теней", lvl: 0, desc: "Подъем павших" },
+    { name: "Шаг Теней", lvl: 0, desc: "Телепортация по теням" },
+    { name: "Пул Монарха", lvl: 0, desc: "Телекинез предметов" }
+  ],
+  shadows: [],
+  inventory: ["Ключ врат E-ранга"]
+};
+
+let bossHp = 5000;
+const maxBossHp = 5000;
+let generatedSmsCode = "123456"; // Тестовый код для проверки
+
+let globalUsers = [
+  { name: "Сон", surname: "Джин-У", monarch: "Монарх Теней", level: 99, gold: 99999, avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" },
+  { name: "Томас", surname: "Андре", monarch: "Монарх Железных Тел", level: 85, gold: 45000, avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100" },
+  { name: "Лю", surname: "Жиган", monarch: "Монарх Драконов", level: 88, gold: 50000, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100" }
+];
+
+const monarchClans = [
+  "Клан Теней", "Клан Драконов", "Клан Зверей", "Клан Ледяных Эльфов", 
+  "Клан Белых Племен", "Клан Железных Тел", "Клан Трансфигурации", "Клан Начала"
+];
+
+// Логика авторизации
+function showPhoneInput() {
+  document.getElementById('authStep1').style.display = 'none';
+  document.getElementById('authStepPhone').style.display = 'block';
+}
+
+function backToAuthMethods() {
+  document.getElementById('authStepPhone').style.display = 'none';
+  document.getElementById('authStep1').style.display = 'block';
+}
+
+function sendSmsCode() {
+  const phone = document.getElementById('phoneNumber').value.trim();
+  if (phone.length < 5) {
+    alert("Введите корректный номер телефона!");
+    return;
+  }
+  game.phone = phone;
+  document.getElementById('codeSentInfo').textContent = "Код отправлен на " + phone;
+  document.getElementById('authStepPhone').style.display = 'none';
+  document.getElementById('authStepCode').style.display = 'block';
+  showToast("Шестизначный код отправлен!");
+}
+
+function verifySmsCode() {
+  const code = document.getElementById('smsCodeInput').value.trim();
+  if (code === generatedSmsCode || code === "123456") {
+    document.getElementById('authStepCode').style.display = 'none';
+    document.getElementById('authStepProfile').style.display = 'block';
+    showToast("Код подтвержден!");
+  } else {
+    alert("Неверный код! Введите 123456");
+  }
+}
+
+function selectCloudAuth(method) {
+  document.getElementById('authStep1').style.display = 'none';
+  document.getElementById('authStepProfile').style.display = 'block';
+  showToast("Вход через " + method + " успешен");
+}
+
+function completeRegistration() {
+  const name = document.getElementById('regName').value.trim();
+  const surname = document.getElementById('regSurname').value.trim();
+  const fileInput = document.getElementById('regAvatarFile');
+  
+  if (!name || !surname) {
+    alert("Введите имя и фамилию!");
+    return;
+  }
+
+  game.name = name;
+  game.surname = surname;
+  game.registered = true;
+
+  if (fileInput.files && fileInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      game.avatar = e.target.result;
+      finalizeLogin();
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    game.avatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100";
+    finalizeLogin();
+  }
+}
+
+function finalizeLogin() {
+  document.getElementById('screen-auth').style.display = 'none';
+  saveGame();
+  updateUI();
+  showToast("ДОБРО ПОЖАЛОВАТЬ В СИСТЕМУ!");
+}
+
+function loadGame() {
+  const saved = localStorage.getItem('solo_mmorpg_save');
+  if (saved) {
+    try {
+      game = JSON.parse(saved);
+      if (game.registered) {
+        document.getElementById('screen-auth').style.display = 'none';
+      }
+    } catch(e) {}
+  }
+  updateUI();
+}
+
+function saveGame() {
+  localStorage.setItem('solo_mmorpg_save', JSON.stringify(game));
+  updateLeaderboard();
+}
+
+function updateUserAvatar(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      game.avatar = event.target.result;
+      saveGame();
+      updateUI();
+      showToast("Аватарка успешно обновлена!");
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + tabId).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function updateUI() {
+  document.getElementById('headerName').textContent = game.name + " " + game.surname;
+  document.getElementById('headerMonarch').textContent = game.monarch;
+  document.getElementById('userGold').textContent = game.gold;
+  if (game.avatar) document.getElementById('headerAvatar').src = game.avatar;
+
+  document.getElementById('levelText').textContent = "LV. " + game.level;
+  document.getElementById('xpText').textContent = game.xp + " / " + game.maxXp + " XP";
+  document.getElementById('xpBar').style.width = Math.floor((game.xp / game.maxXp) * 100) + "%";
+  document.getElementById('statPoints').textContent = game.points;
+
+  for (let s in game.stats) {
+    let el = document.getElementById('s_' + s);
+    if (el) el.textContent = game.stats[s];
+  }
+
+  document.getElementById('myClanName').textContent = game.clan;
+
+  renderQuests();
+  renderSkills();
+  renderShadows();
+  renderInventory();
+  renderClans();
+  renderPvP();
+  updateLeaderboard();
+}
+
+function upStat(stat) {
+  if (game.points > 0) {
+    game.points--;
+    game.stats[stat]++;
+    saveGame();
+    updateUI();
+  } else {
+    showToast("Недостаточно очков характеристик!");
+  }
+}
+
+function renderQuests() {
+  let container = document.getElementById('questsContainer');
+  container.innerHTML = "";
+  game.quests.forEach((q, idx) => {
+    container.innerHTML += `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <div><b>${q.text}</b><br><small style="color:var(--text-muted)">+${q.xp} XP | +${q.gold} G</small></div>
+        <button class="btn-action ${q.done ? 'done' : ''}" onclick="completeQuest(${idx})">${q.done ? 'ВЫПОЛНЕНО' : 'ВЫПОЛНИТЬ'}</button>
+      </div>`;
+  });
+}
+
+function completeQuest(idx) {
+  if (!game.quests[idx].done) {
+    game.quests[idx].done = true;
+    game.gold += game.quests[idx].gold;
+    addXp(game.quests[idx].xp);
+    saveGame();
+  } else {
+    showToast("Задание уже выполнено сегодня!");
+  }
+}
+
+function addXp(amount) {
+  game.xp += amount;
+  while (game.xp >= game.maxXp) {
+    game.xp -= game.maxXp;
+    game.level++;
+    game.points += 3;
+    showToast("УРОВЕНЬ ПОВЫШЕН! LV. " + game.level);
+  }
+  saveGame();
+}
+
+function attackBoss() {
+  let dmg = game.stats.str * 4 + Math.floor(Math.random() * 50);
+  bossHp -= dmg;
+  if (bossHp <= 0) {
+    bossHp = 0;
+    showToast("👑 КОРОЛЬ ДРАКОНОВ ПОВЕРЖЕН! НАГРАДА: +2000 ЗОЛОТА");
+    game.gold += 2000;
+    setTimeout(() => { bossHp = maxBossHp; }, 5000);
+  } else {
+    showToast(`Нанесено ${dmg} урона Королю Драконов!`);
+  }
+  document.getElementById('bossHpText').textContent = bossHp + " / " + maxBossHp + " HP";
+  document.getElementById('bossHpBar').style.width = (bossHp / maxBossHp * 100) + "%";
+}
+
+function renderSkills() {
+  let list = document.getElementById('skillsList');
+  list.innerHTML = "";
+  game.skills.forEach((sk, idx) => {
+    list.innerHTML += `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <div><b>${sk.name}</b> (LV. ${sk.lvl})<br><small style="color:var(--text-muted)">${sk.desc}</small></div>
+        <button class="btn-action" onclick="upgradeSkill(${idx})">УЛУЧШИТЬ</button>
+      </div>`;
+  });
+}
+
+function upgradeSkill(idx) {
+  if (game.points >= 2) {
+    game.points -= 2;
+    game.skills[idx].lvl++;
+    saveGame();
+    updateUI();
+    showToast("Навык прокачан!");
+  } else {
+    showToast("Нужно 2 очка характеристик для навыка!");
+  }
+}
+
+function extractShadow() {
+  if (game.gold >= 100) {
+    game.gold -= 100;
+    let shadowsPool = ["Теневой Рыцарь", "Теневой Маг", "Клык (Орк)", "Кайзер (Зверь)", "Теневой Танк"];
+    let newShadow = shadowsPool[Math.floor(Math.random() * shadowsPool.length)];
+    game.shadows.push(newShadow);
+    saveGame();
+    updateUI();
+    showToast("УСПЕШНО! Врата подчинены, получена тень: " + newShadow);
+  } else {
+    showToast("Нужно 100 золота для ритуала извлечения!");
+  }
+}
+
+function renderShadows() {
+  let list = document.getElementById('shadowsList');
+  list.innerHTML = game.shadows.length === 0 ? '<div style="font-size:10px;color:var(--text-muted)">Армия пуста. Извлеките первую тень.</div>' : '';
+  game.shadows.forEach(sh => {
+    list.innerHTML += `<div style="padding:6px;background:rgba(0,240,255,0.05);margin-bottom:4px;border-radius:4px;font-size:11px">⚔️ ${sh} (В строю)</div>`;
+  });
+}
+
+function openChest() {
+  if (game.gold >= 200) {
+    game.gold -= 200;
+    let loot = ["Ключ врат S-ранга", "Эликсир жизни", "Магический клинок", "Руна Монарха"];
+    let item = loot[Math.floor(Math.random() * loot.length)];
+    game.inventory.push(item);
+    saveGame();
+    updateUI();
+    showToast("📦 Из сундука выпало: " + item);
+  } else {
+    showToast("Нужно 200 золота для открытия сундука!");
+  }
+}
+
+function renderInventory() {
+  let list = document.getElementById('inventoryList');
+  list.innerHTML = "";
+  game.inventory.forEach(item => {
+    list.innerHTML += `<div style="background:rgba(10,25,50,0.6);border:1px solid rgba(0,240,255,0.2);padding:8px;border-radius:6px;text-align:center;font-size:10px">📦<br>${item}</div>`;
+  });
+}
+
+function renderClans() {
+  let list = document.getElementById('clansSelection');
+  list.innerHTML = "";
+  monarchClans.forEach(clan => {
+    list.innerHTML += `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <span><b>${clan}</b></span>
+        <button class="btn-action" onclick="joinClan('${clan}')">ВСТУПИТЬ</button>
+      </div>`;
+  });
+}
+
+function joinClan(clan) {
+  game.clan = clan;
+  saveGame();
+  updateUI();
+  showToast("Вы присоединились к " + clan + "!");
+}
+
+function renderPvP() {
+  let list = document.getElementById('pvpList');
+  list.innerHTML = "";
+  globalUsers.forEach(u => {
+    list.innerHTML += `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <div style="display:flex;align-items:center;gap:8px">
+          <img src="${u.avatar}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--cyan)">
+          <div><b>${u.name} ${u.surname}</b><br><small style="color:var(--text-muted)">LV. ${u.level}</small></div>
+        </div>
+        <button class="btn-action" onclick="fightPvp('${u.name}', ${u.level})">АТАКОВАТЬ</button>
+      </div>`;
+  });
+}
+
+function fightPvp(opponentName, opLevel) {
+  let win = (game.stats.str + game.stats.agi + game.level * 2) >= (opLevel * 2 + Math.floor(Math.random() * 30));
+  if (win) {
+    game.gold += 300;
+    addXp(50);
+    showToast(`🏆 ПОБЕДА над ${opponentName}! Получено +300 золота и +50 XP.`);
+  } else {
+    showToast(`❌ ПОРАЖЕНИЕ в бою с ${opponentName}. Тренируйтесь сильнее!`);
+  }
+  saveGame();
+}
+
+function updateLeaderboard() {
+  let tbody = document.getElementById('leaderboardBody');
+  if (!tbody) return;
+
+  let all = [...globalUsers];
+  if (game.registered) {
+    all.push({ name: game.name, surname: game.surname, monarch: game.monarch, level: game.level, gold: game.gold, avatar: game.avatar });
+  }
+  all.sort((a, b) => b.level - a.level);
+
+  tbody.innerHTML = "";
+  all.forEach(u => {
+    let rankTag = u.level > 90 ? "RANK S" : (u.level > 50 ? "RANK A" : "RANK E");
+    tbody.innerHTML += `
+      <tr>
+        <td>
+          <div class="user-cell">
+            <img src="${u.avatar}" class="mini-avatar">
+            <div><b>${u.name} ${u.surname}</b><br><small style="color:var(--text-muted)">${u.monarch || ''}</small></div>
+          </div>
+        </td>
+        <td style="color:var(--cyan);font-weight:bold">${rankTag}</td>
+        <td>${u.level}</td>
+        <td style="color:var(--gold)">${u.gold} G</td>
+      </tr>`;
+  });
+}
+
+function showToast(text) {
+  const t = document.getElementById('toast');
+  t.textContent = text;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+loadGame();
+</script>
+</body>
+</html>
